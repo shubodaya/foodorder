@@ -150,6 +150,10 @@ export default function CartPage() {
         return "Receipt email is currently unavailable at this cafe.";
       }
 
+      if (placedOrder?.receipt?.reason === "disabled_or_no_email") {
+        return "Receipt email is currently disabled at this cafe.";
+      }
+
       if (placedOrder?.receipt?.reason === "send_failed") {
         return `Receipt could not be emailed to ${placedOrder.receiptEmail}.`;
       }
