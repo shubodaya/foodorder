@@ -1,117 +1,72 @@
 ﻿# Woodlands Family Theme Park Food Ordering
 
-This project runs a customer ordering portal, a live order board, and a staff portal for cafe operations.
+This README explains only how to use the live website.
 
-## Start The Website
+## Main Portal
 
-1. In project root, create `.env` from `.env.example` and fill SMTP values if you want email receipts.
-2. Run:
+- `https://foodorder-front.onrender.com/`  
+Choose your cafe and start ordering.
 
-```bash
-docker compose up --build
-```
+## Staff Login
 
-3. Open in browser:
+- `https://foodorder-front.onrender.com/staff-login`  
+Staff sign in page for kitchen/admin access.
 
-- Landing page: `http://localhost:5173/`
-- Backend API health base: `http://localhost:5000/api`
-
-## Run Online From GitHub
-
-This repo includes GitHub Actions in `.github/workflows`:
-
-- `ci.yml`: runs backend syntax checks + frontend production build on every push/PR
-- `deploy-render.yml`: auto-deploys backend/frontend on push to `main` using Render deploy hooks
-
-### One-time setup
-
-1. Create 3 services on Render:
-- PostgreSQL database
-- Backend web service from `./backend/Dockerfile`
-- Frontend web service from `./frontend/Dockerfile`
-
-2. Set backend Render environment variables:
-- `NODE_ENV=production`
-- `PORT=5000`
-- `DATABASE_URL=<render postgres internal url>`
-- `JWT_SECRET=<strong-secret>`
-- `CLIENT_URL=<your frontend public url>`
-- `RECEIPTS_ENABLED=true`
-- `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`
-
-3. Set frontend Render environment variables:
-- `VITE_API_URL=<your backend public url>/api`
-- `VITE_SOCKET_URL=<your backend public url>`
-
-4. In GitHub repo -> `Settings` -> `Secrets and variables` -> `Actions`, add:
-- `RENDER_BACKEND_DEPLOY_HOOK`
-- `RENDER_FRONTEND_DEPLOY_HOOK`
-
-5. Push to `main`. GitHub Action will trigger online deploy automatically.
-
-## Web Links (Customer)
-
-- Choose cafe: `http://localhost:5173/`
-- Rays Diner menu: `http://localhost:5173/raysdiner/menu`
-- Loves Grove menu: `http://localhost:5173/lovesgrove/menu`
-- Cosmic Cafe menu: `http://localhost:5173/cosmiccafe/menu`
-- Rays Diner order board: `http://localhost:5173/raysdiner/order-board`
-- Loves Grove order board: `http://localhost:5173/lovesgrove/order-board`
-- Cosmic Cafe order board: `http://localhost:5173/cosmiccafe/order-board`
-
-## Web Links (Staff)
-
-- Staff login: `http://localhost:5173/staff-login`
-- New orders: `http://localhost:5173/new-orders`
-- Staff dashboard: `http://localhost:5173/staff-dashboard`
-- Menu management: `http://localhost:5173/staff-menu-management`
-- End of day receipt: `http://localhost:5173/end-of-day`
-
-## Default Staff Accounts
-
+Default staff users:
 - Admin: `admin@raysdiner.local` / `admin123`
 - Kitchen: `kitchen@raysdiner.local` / `kitchen123`
 
-## How Customers Use It
+## Rays Diner Links
 
-1. Open the cafe menu URL (or scan QR code linked to that URL).
-2. Add items and extras, then open cart.
-3. Enter name and optional email, place order.
-4. A large order number popup is shown, then returns automatically to the menu.
-5. Customer tracks progress on the live order board screen.
+- `https://foodorder-front.onrender.com/raysdiner/menu`  
+Customer menu for Rays Diner (browse categories and add food).
+- `https://foodorder-front.onrender.com/raysdiner/cart`  
+Customer cart and checkout for Rays Diner.
+- `https://foodorder-front.onrender.com/raysdiner/order-board`  
+Live order board screen for Rays Diner (preparing and ready numbers).
 
-## How Staff Use It
+## Loves Grove Links
 
-1. Login at `/staff-login`.
-2. Open `/new-orders` and select cafe filter.
-3. Move incoming orders through kitchen flow (`Preparing` -> `Ready` -> `Completed`).
-4. Completed orders are removed from active live queue.
-5. Generate daily totals from `/end-of-day`.
+- `https://foodorder-front.onrender.com/lovesgrove/menu`  
+Customer menu for Loves Grove.
+- `https://foodorder-front.onrender.com/lovesgrove/cart`  
+Customer cart and checkout for Loves Grove.
+- `https://foodorder-front.onrender.com/lovesgrove/order-board`  
+Live order board screen for Loves Grove.
 
-## Email Receipts (Important)
+## Cosmic Cafe Links
 
-Email receipts and order-ready notifications only send when SMTP is configured.
+- `https://foodorder-front.onrender.com/cosmiccafe/menu`  
+Customer menu for Cosmic Cafe.
+- `https://foodorder-front.onrender.com/cosmiccafe/cart`  
+Customer cart and checkout for Cosmic Cafe.
+- `https://foodorder-front.onrender.com/cosmiccafe/order-board`  
+Live order board screen for Cosmic Cafe.
 
-Set these in project root `.env`:
+## Staff Pages After Login
 
-- `RECEIPTS_ENABLED=true`
-- `SMTP_HOST=`
-- `SMTP_PORT=587`
-- `SMTP_SECURE=false`
-- `SMTP_USER=`
-- `SMTP_PASS=`
-- `SMTP_FROM=` (optional, defaults to `SMTP_USER`)
+- `https://foodorder-front.onrender.com/new-orders`  
+Realtime incoming customer orders for kitchen/staff.
+- `https://foodorder-front.onrender.com/staff-dashboard`  
+Staff dashboard (admin controls).
+- `https://foodorder-front.onrender.com/staff-menu-management`  
+Add/edit/delete categories, menu items, extras, and images.
+- `https://foodorder-front.onrender.com/end-of-day`  
+Generate end-of-day receipt and sales summary.
 
-If SMTP is missing, order placement still works, but receipt email cannot be sent.
+## Customer Usage Flow
 
-## Mobile Access On Same Wi-Fi
+1. Open `https://foodorder-front.onrender.com/`.
+2. Choose cafe: Rays Diner, Loves Grove, or Cosmic Cafe.
+3. Add items from menu and open cart.
+4. Enter name and place order (email is optional for receipt).
+5. Note the large order number shown on screen.
+6. Watch the matching cafe order-board page until the order is ready.
 
-1. Find your computer LAN IP (example `192.168.1.25`).
-2. Open on mobile using the same links with that IP:
+## Staff Usage Flow
 
-- `http://192.168.1.25:5173/`
-- `http://192.168.1.25:5173/raysdiner/menu`
-
-## End Of Day Receipt Files
-
-Generated end-of-day reports are saved in `receipts/`.
+1. Open `https://foodorder-front.onrender.com/staff-login` and sign in.
+2. Open `https://foodorder-front.onrender.com/new-orders`.
+3. Select cafe in staff view and process orders.
+4. Move orders through statuses and mark completed.
+5. Use `https://foodorder-front.onrender.com/end-of-day` for daily totals.
