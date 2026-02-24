@@ -16,6 +16,39 @@ docker compose up --build
 - Landing page: `http://localhost:5173/`
 - Backend API health base: `http://localhost:5000/api`
 
+## Run Online From GitHub
+
+This repo includes GitHub Actions in `.github/workflows`:
+
+- `ci.yml`: runs backend syntax checks + frontend production build on every push/PR
+- `deploy-render.yml`: auto-deploys backend/frontend on push to `main` using Render deploy hooks
+
+### One-time setup
+
+1. Create 3 services on Render:
+- PostgreSQL database
+- Backend web service from `./backend/Dockerfile`
+- Frontend web service from `./frontend/Dockerfile`
+
+2. Set backend Render environment variables:
+- `NODE_ENV=production`
+- `PORT=5000`
+- `DATABASE_URL=<render postgres internal url>`
+- `JWT_SECRET=<strong-secret>`
+- `CLIENT_URL=<your frontend public url>`
+- `RECEIPTS_ENABLED=true`
+- `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`
+
+3. Set frontend Render environment variables:
+- `VITE_API_URL=<your backend public url>/api`
+- `VITE_SOCKET_URL=<your backend public url>`
+
+4. In GitHub repo -> `Settings` -> `Secrets and variables` -> `Actions`, add:
+- `RENDER_BACKEND_DEPLOY_HOOK`
+- `RENDER_FRONTEND_DEPLOY_HOOK`
+
+5. Push to `main`. GitHub Action will trigger online deploy automatically.
+
 ## Web Links (Customer)
 
 - Choose cafe: `http://localhost:5173/`

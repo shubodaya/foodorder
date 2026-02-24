@@ -1,0 +1,34 @@
+name: Deploy Online (Render)
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+jobs:
+  deploy-backend:
+    name: Deploy Backend
+    runs-on: ubuntu-latest
+    if: ${{ secrets.RENDER_BACKEND_DEPLOY_HOOK != '' }}
+    steps:
+      - name: Trigger backend deploy hook
+        run: curl --fail --show-error --silent -X POST "${{ secrets.RENDER_BACKEND_DEPLOY_HOOK }}"
+
+  deploy-frontend:
+    name: Deploy Frontend
+    runs-on: ubuntu-latest
+    if: ${{ secrets.RENDER_FRONTEND_DEPLOY_HOOK != '' }}
+    steps:
+      - name: Trigger frontend deploy hook
+        run: curl --fail --show-error --silent -X POST "${{ secrets.RENDER_FRONTEND_DEPLOY_HOOK }}"
+
+  missing-secrets-info:
+    name: Missing Secrets Info
+    runs-on: ubuntu-latest
+    if: ${{ secrets.RENDER_BACKEND_DEPLOY_HOOK == '' || secrets.RENDER_FRONTEND_DEPLOY_HOOK == '' }}
+    steps:
+      - name: Explain required secrets
+        run: |
+          echo "Set these GitHub repository secrets to enable auto-deploy:"
+          echo "RENDER_BACKEND_DEPLOY_HOOK"
+          echo "RENDER_FRONTEND_DEPLOY_HOOK"
