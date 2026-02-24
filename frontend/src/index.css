@@ -1,0 +1,298 @@
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Sora:wght@500;600;700;800&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+.dark {
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Outfit", "Segoe UI", sans-serif;
+  background:
+    radial-gradient(1200px 700px at 12% -10%, rgba(239, 198, 106, 0.42), transparent 58%),
+    radial-gradient(900px 600px at 95% 0%, rgba(15, 138, 133, 0.2), transparent 55%),
+    linear-gradient(165deg, #fbf8f2 0%, #f4ecdf 44%, #efe5d3 100%);
+  color: #151b26;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  opacity: 0.42;
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(17, 24, 39, 0.15) 1px, transparent 0);
+  background-size: 20px 20px;
+}
+
+.dark body {
+  background:
+    radial-gradient(1000px 560px at -8% -20%, rgba(239, 198, 106, 0.12), transparent 55%),
+    radial-gradient(900px 600px at 112% 8%, rgba(15, 138, 133, 0.22), transparent 56%),
+    linear-gradient(165deg, #101722 0%, #0b1320 55%, #090f1a 100%);
+  color: #f5f7fb;
+}
+
+.dark body::before {
+  opacity: 0.2;
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(248, 250, 252, 0.2) 1px, transparent 0);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+@layer base {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: "Sora", "Outfit", "Segoe UI", sans-serif;
+    letter-spacing: -0.02em;
+  }
+
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+  }
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 24px) scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+}
+
+@keyframes pulse-soft {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(15, 138, 133, 0.38);
+  }
+
+  50% {
+    transform: scale(1.02);
+    box-shadow: 0 0 0 10px rgba(15, 138, 133, 0);
+  }
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.88);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes countdown-shrink {
+  from {
+    transform: scaleX(1);
+  }
+
+  to {
+    transform: scaleX(0);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    opacity: 0;
+    transform: translateX(-160%) rotate(24deg);
+  }
+
+  12% {
+    opacity: 0.9;
+  }
+
+  70% {
+    opacity: 0.5;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateX(360%) rotate(24deg);
+  }
+}
+
+@keyframes float-slow {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes float-slower {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-16px);
+  }
+}
+
+@keyframes gradient-pan {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@layer components {
+  .animate-rise-in {
+    animation: rise-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .animate-toast-in {
+    animation: toast-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .animate-pop-in {
+    animation: pop-in 0.34s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .animate-pulse-soft {
+    animation: pulse-soft 1.8s ease-in-out infinite;
+  }
+
+  .animate-float-slow {
+    animation: float-slow 4.2s ease-in-out infinite;
+  }
+
+  .animate-float-slower {
+    animation: float-slower 6.3s ease-in-out infinite;
+  }
+
+  .countdown-bar {
+    transform-origin: left center;
+    animation: countdown-shrink var(--countdown-duration, 5s) linear forwards;
+  }
+
+  .premium-hero {
+    background:
+      linear-gradient(135deg, rgba(196, 69, 77, 0.95) 0%, rgba(15, 138, 133, 0.9) 55%, rgba(239, 198, 106, 0.86) 100%);
+    background-size: 180% 180%;
+    animation: gradient-pan 9s ease infinite;
+  }
+
+  .landing-hero {
+    position: relative;
+    overflow: hidden;
+    background:
+      radial-gradient(120% 140% at 6% -18%, rgba(239, 198, 106, 0.2), transparent 46%),
+      radial-gradient(120% 140% at 100% -18%, rgba(15, 138, 133, 0.2), transparent 50%),
+      linear-gradient(145deg, #0f1827 0%, #142238 48%, #1a2d45 100%);
+    border: 1px solid rgba(248, 250, 252, 0.14);
+    box-shadow: 0 24px 60px rgba(3, 8, 20, 0.45);
+  }
+
+  .landing-hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(112deg, rgba(255, 255, 255, 0.08), transparent 46%);
+  }
+
+  .premium-glass {
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(17, 24, 39, 0.08);
+  }
+
+  .dark .premium-glass {
+    background: rgba(17, 24, 39, 0.52);
+    border-color: rgba(248, 250, 252, 0.14);
+  }
+
+  .premium-surface {
+    background: rgba(255, 255, 255, 0.84);
+    border: 1px solid rgba(17, 24, 39, 0.06);
+    backdrop-filter: blur(10px);
+  }
+
+  .dark .premium-surface {
+    background: rgba(17, 24, 39, 0.72);
+    border-color: rgba(248, 250, 252, 0.1);
+  }
+
+  .shimmer-btn {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  .shimmer-btn::after {
+    content: "";
+    position: absolute;
+    top: -120%;
+    left: -60%;
+    width: 38%;
+    height: 280%;
+    pointer-events: none;
+    transform: translateX(-160%) rotate(24deg);
+    opacity: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+    animation: shimmer 1.05s ease-out 1;
+    z-index: 1;
+    will-change: transform, opacity;
+  }
+
+  .shimmer-btn:hover::after,
+  .shimmer-btn:focus-visible::after {
+    animation: shimmer 0.85s ease-out 1;
+  }
+}
