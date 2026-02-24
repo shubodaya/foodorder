@@ -41,12 +41,36 @@ function resolveServiceUrl(configuredUrl, defaultPort, defaultPath = "") {
   return `${browserProtocol}//${browserHost}:${defaultPort}${safePath}`;
 }
 
+function resolveSocketFromApiUrl(apiUrl) {
+  if (!apiUrl) {
+    return null;
+  }
+
+  try {
+    const parsed = new URL(apiUrl);
+    parsed.pathname = parsed.pathname.replace(/\/api\/?$/, "");
+    return parsed.toString().replace(/\/$/, "");
+  } catch (_error) {
+    return null;
+  }
+}
+
 export function getApiBaseUrl() {
   return resolveServiceUrl(import.meta.env.VITE_API_URL, 5000, "/api");
 }
 
 export function getSocketBaseUrl() {
-  return resolveServiceUrl(import.meta.env.VITE_SOCKET_URL, 5000, "");
+  const configuredSocketUrl = import.meta.env.VITE_SOCKET_URL;
+  if (configuredSocketUrl) {
+    return resolveServiceUrl(configuredSocketUrl, 5000, "");
+  }
+
+  const derivedFromApi = resolveSocketFromApiUrl(import.meta.env.VITE_API_URL);
+  if (derivedFromApi) {
+    return derivedFromApi;
+  }
+
+  return resolveServiceUrl(null, 5000, "");
 }
 
 export function getAssetBaseUrl() {
