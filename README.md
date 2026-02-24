@@ -1,4 +1,4 @@
-﻿# Woodlands Family Theme Park Food Ordering
+﻿# Food Ordering Application
 
 This README explains only how to use the live website.
 
