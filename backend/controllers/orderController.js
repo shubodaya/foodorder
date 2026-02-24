@@ -6,7 +6,7 @@ import {
   ORDER_STATUSES,
   updateOrderStatus
 } from "../models/orderModel.js";
-import { sendOrderReceipt } from "../services/receiptService.js";
+import { sendOrderReceipt, sendOrderReadyNotification } from "../services/receiptService.js";
 import { saveEndOfDayReceipt } from "../services/endOfDayReceiptService.js";
 
 const ALLOWED_CAFE_SLUGS = new Set(["raysdiner", "lovesgrove", "cosmiccafe"]);
@@ -274,6 +274,13 @@ export async function updateStatus(req, res, next) {
     io.to("admin").emit("order:status", payload);
     io.to(`order_${payload.id}`).emit("order:status", payload);
     io.emit("public:order:status", payload);
+
+    if (payload.status === "Ready") {
+      sendOrderReadyNotification(payload).catch((error) => {
+        // eslint-disable-next-line no-console
+        console.error("Failed to send order-ready notification", error);
+      });
+    }
 
     return res.json(payload);
   } catch (error) {

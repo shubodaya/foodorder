@@ -138,3 +138,57 @@ export async function sendOrderReceipt(order) {
 
   return { sent: true, reason: null };
 }
+
+function buildReadyText(order) {
+  const cafeLabel = CAFE_LABELS[order.cafeSlug] || "Cafe";
+  const lines = [
+    `${cafeLabel} Update`,
+    "",
+    `Hi ${order.customerName || "Customer"},`,
+    `Your order ${order.orderNumber} is ready for collection.`,
+    "",
+    "Please head to the collection counter.",
+    "Thank you."
+  ];
+
+  return lines.join("\n");
+}
+
+function buildReadyHtml(order) {
+  const cafeLabel = CAFE_LABELS[order.cafeSlug] || "Cafe";
+  return `
+    <div style="font-family:Arial,Helvetica,sans-serif;max-width:560px;margin:0 auto;padding:16px;color:#111827;">
+      <h2 style="margin:0 0 12px 0;">${cafeLabel} - Order Ready</h2>
+      <p style="margin:0 0 8px 0;">Hi ${order.customerName || "Customer"},</p>
+      <p style="margin:0 0 8px 0;">Your order <strong>${order.orderNumber}</strong> is ready for collection.</p>
+      <p style="margin:0 0 8px 0;">Please head to the collection counter.</p>
+      <p style="margin:12px 0 0 0;color:#4b5563;">Thank you.</p>
+    </div>
+  `;
+}
+
+export async function sendOrderReadyNotification(order) {
+  const receiptsEnabled = parseBoolean(process.env.RECEIPTS_ENABLED, true);
+
+  if (!receiptsEnabled || !order?.customerEmail) {
+    return { sent: false, reason: "disabled_or_no_email" };
+  }
+
+  const activeTransporter = getTransporter();
+  if (!activeTransporter) {
+    return { sent: false, reason: "smtp_not_configured" };
+  }
+
+  const cafeLabel = CAFE_LABELS[order.cafeSlug] || "Cafe";
+  const fromAddress = process.env.SMTP_FROM || process.env.SMTP_USER;
+
+  await activeTransporter.sendMail({
+    from: fromAddress,
+    to: order.customerEmail,
+    subject: `${cafeLabel} - Your Order ${order.orderNumber} Is Ready`,
+    text: buildReadyText(order),
+    html: buildReadyHtml(order)
+  });
+
+  return { sent: true, reason: null };
+}

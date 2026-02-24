@@ -57,7 +57,7 @@ docker compose up --build
 
 ## Email Receipts (Important)
 
-Email receipts only send when SMTP is configured.
+Email receipts and order-ready notifications only send when SMTP is configured.
 
 Set these in project root `.env`:
 
