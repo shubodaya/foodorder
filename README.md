@@ -23,7 +23,9 @@ This screen is the live order board used on the customer-facing monitor to show 
 
 ### Staff New Orders Feed (`asset/3.png`)
 
-`asset/3.png` is not in the repository yet. Add it and I will include it in this section immediately.
+![Staff New Orders Feed](asset/3.png)
+
+This screen is the staff new-orders feed where kitchen/admin users see incoming orders and move them through preparation workflow.
 
 ## Staff Login
 
