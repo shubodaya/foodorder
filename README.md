@@ -9,19 +9,19 @@ Choose your cafe and start ordering.
 
 ## Screenshots
 
-### Customer Portal Menu Card (`asset/1.png`)
+### Customer Portal Menu Card
 
 ![Customer Portal Menu Card](asset/1.png)
 
 This screen is the customer ordering menu with category navigation, item cards, and add-to-cart flow.
 
-### Order Board Screen (`asset/2.png`)
+### Order Board Screen
 
 ![Order Board Screen](asset/2.png)
 
 This screen is the live order board used on the customer-facing monitor to show preparing and ready numbers.
 
-### Staff New Orders Feed (`asset/3.png`)
+### Staff New Orders Feed
 
 ![Staff New Orders Feed](asset/3.png)
 
