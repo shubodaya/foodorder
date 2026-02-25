@@ -7,6 +7,24 @@ This README explains only how to use the live website.
 - `https://foodorder.pages.dev/`
 Choose your cafe and start ordering.
 
+## Screenshots
+
+### Customer Portal Menu Card (`asset/1.png`)
+
+![Customer Portal Menu Card](asset/1.png)
+
+This screen is the customer ordering menu with category navigation, item cards, and add-to-cart flow.
+
+### Order Board Screen (`asset/2.png`)
+
+![Order Board Screen](asset/2.png)
+
+This screen is the live order board used on the customer-facing monitor to show preparing and ready numbers.
+
+### Staff New Orders Feed (`asset/3.png`)
+
+`asset/3.png` is not in the repository yet. Add it and I will include it in this section immediately.
+
 ## Staff Login
 
 - `https://foodorder.pages.dev/staff-login`
