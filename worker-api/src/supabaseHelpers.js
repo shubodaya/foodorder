@@ -127,9 +127,12 @@ export async function reserveNextOrderNumber(c, cafeSlug) {
 
   await supabase
     .from("cafe_daily_counters")
-    .upsert({ cafe_slug: cafeSlug, counter_date: counterDate, last_number: 0 }, { onConflict: "cafe_slug,counter_date" });
+    .upsert(
+      { cafe_slug: cafeSlug, counter_date: counterDate, last_number: 0 },
+      { onConflict: "cafe_slug,counter_date", ignoreDuplicates: true }
+    );
 
-  for (let attempt = 0; attempt < 910; attempt += 1) {
+  for (let attempt = 0; attempt < 50; attempt += 1) {
     const { data: row, error: readError } = await supabase
       .from("cafe_daily_counters")
       .select("last_number")
@@ -141,14 +144,17 @@ export async function reserveNextOrderNumber(c, cafeSlug) {
       throw new Error(readError.message);
     }
 
-    const candidate = ((Number(row?.last_number || 0) % 900) + 1);
-    const { error: updateError } = await supabase
+    const currentLast = Number(row?.last_number || 0);
+    const candidate = ((currentLast % 900) + 1);
+    const { data: updatedRows, error: updateError } = await supabase
       .from("cafe_daily_counters")
       .update({ last_number: candidate })
       .eq("cafe_slug", cafeSlug)
-      .eq("counter_date", counterDate);
+      .eq("counter_date", counterDate)
+      .eq("last_number", currentLast)
+      .select("last_number");
 
-    if (updateError) {
+    if (updateError || !updatedRows?.length) {
       continue;
     }
 

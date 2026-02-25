@@ -529,7 +529,46 @@ export default function OrderBoardPage() {
           {loading && <p className={loadingClass}>Loading orders...</p>}
           {error && <p className={errorClass}>{error}</p>}
 
-          <div className="grid gap-4 lg:grid-cols-[2fr,1fr]">
+          <div className="grid gap-4 lg:grid-cols-2">
+            <article className={`rounded-3xl border p-4 md:p-6 ${
+              isLightTheme
+                ? "border-amber-400/70 bg-amber-100/80"
+                : "border-amber-300/30 bg-amber-500/10"
+            }`}
+            >
+              <h2 className={`text-lg font-black uppercase tracking-wide md:text-2xl ${isLightTheme ? "text-amber-900" : "text-amber-300"}`}>Preparing</h2>
+              <div className="mt-4 grid grid-cols-3 gap-2 sm:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
+                {preparingOrders.map((order) => (
+                  <button
+                    type="button"
+                    key={order.id}
+                    onClick={() => toggleOrderSelection(order.id, "preparing")}
+                    className={`flex aspect-square items-center justify-center rounded-xl border text-center text-xl font-black tracking-[0.1em] sm:text-2xl ${
+                      isLightTheme
+                        ? "border-amber-300 bg-white/75 text-amber-900"
+                        : "border-amber-200/20 bg-amber-300/20"
+                    } ${
+                      selectionMode === "preparing" ? "cursor-pointer transition hover:scale-[1.02]" : "cursor-default"
+                    } ${
+                      selectedOrderIds.includes(order.id)
+                        ? (isLightTheme ? "ring-4 ring-amber-500" : "ring-4 ring-amber-300")
+                        : ""
+                    }`}
+                  >
+                    {formatBoardNumber(order.orderNumber)}
+                  </button>
+                ))}
+              </div>
+              {!preparingOrders.length && !loading && (
+                <p className={`mt-4 rounded-2xl px-4 py-4 text-center text-sm font-semibold uppercase tracking-wide ${
+                  isLightTheme ? "border border-slate-300 bg-white text-slate-600" : "bg-white/10 text-white/70"
+                }`}
+                >
+                  No orders in progress
+                </p>
+              )}
+            </article>
+
             <article className={`rounded-3xl border p-4 md:p-6 ${
               isLightTheme
                 ? "border-emerald-400/70 bg-emerald-100/70"
@@ -537,13 +576,13 @@ export default function OrderBoardPage() {
             }`}
             >
               <h2 className={`text-lg font-black uppercase tracking-wide md:text-2xl ${isLightTheme ? "text-emerald-800" : "text-emerald-300"}`}>Ready For Collection</h2>
-              <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
-                {readyOrders.slice(0, 24).map((order) => (
+              <div className="mt-4 grid grid-cols-3 gap-2 sm:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
+                {readyOrders.map((order) => (
                   <button
                     type="button"
                     key={order.id}
                     onClick={() => toggleOrderSelection(order.id, "ready")}
-                    className={`rounded-2xl border px-3 py-5 text-center text-3xl font-black tracking-[0.16em] sm:text-4xl ${
+                    className={`flex aspect-square items-center justify-center rounded-xl border text-center text-xl font-black tracking-[0.1em] sm:text-2xl ${
                       isLightTheme
                         ? "border-emerald-300 bg-white/75 text-emerald-900"
                         : "border-emerald-200/30 bg-emerald-300/20"
@@ -565,45 +604,6 @@ export default function OrderBoardPage() {
                 }`}
                 >
                   No ready orders yet
-                </p>
-              )}
-            </article>
-
-            <article className={`rounded-3xl border p-4 md:p-6 ${
-              isLightTheme
-                ? "border-amber-400/70 bg-amber-100/80"
-                : "border-amber-300/30 bg-amber-500/10"
-            }`}
-            >
-              <h2 className={`text-lg font-black uppercase tracking-wide md:text-2xl ${isLightTheme ? "text-amber-900" : "text-amber-300"}`}>Preparing</h2>
-              <div className="mt-4 space-y-2">
-                {preparingOrders.slice(0, 18).map((order) => (
-                  <button
-                    type="button"
-                    key={order.id}
-                    onClick={() => toggleOrderSelection(order.id, "preparing")}
-                    className={`w-full rounded-xl border px-3 py-3 text-center text-2xl font-black tracking-[0.14em] ${
-                      isLightTheme
-                        ? "border-amber-300 bg-white/75 text-amber-900"
-                        : "border-amber-200/20 bg-amber-300/20"
-                    } ${
-                      selectionMode === "preparing" ? "cursor-pointer transition hover:scale-[1.01]" : "cursor-default"
-                    } ${
-                      selectedOrderIds.includes(order.id)
-                        ? (isLightTheme ? "ring-4 ring-amber-500" : "ring-4 ring-amber-300")
-                        : ""
-                    }`}
-                  >
-                    {formatBoardNumber(order.orderNumber)}
-                  </button>
-                ))}
-              </div>
-              {!preparingOrders.length && !loading && (
-                <p className={`mt-4 rounded-2xl px-4 py-4 text-center text-sm font-semibold uppercase tracking-wide ${
-                  isLightTheme ? "border border-slate-300 bg-white text-slate-600" : "bg-white/10 text-white/70"
-                }`}
-                >
-                  No orders in progress
                 </p>
               )}
             </article>
