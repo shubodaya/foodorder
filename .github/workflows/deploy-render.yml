@@ -5,64 +5,111 @@ on:
     branches: ["main"]
   workflow_dispatch:
 
+env:
+  CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+  CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+  CLOUDFLARE_PAGES_PROJECT: ${{ secrets.CLOUDFLARE_PAGES_PROJECT }}
+  CLOUDFLARE_WORKER_API_URL: ${{ secrets.CLOUDFLARE_WORKER_API_URL }}
+
 jobs:
   deploy-worker:
     name: Deploy Worker API
     runs-on: ubuntu-latest
-    if: ${{ secrets.CLOUDFLARE_API_TOKEN != '' && secrets.CLOUDFLARE_ACCOUNT_ID != '' }}
     steps:
+      - name: Check worker deploy secrets
+        id: worker-secrets
+        run: |
+          if [ -n "$CLOUDFLARE_API_TOKEN" ] && [ -n "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "Skipping worker deploy because required secrets are missing."
+          fi
+
       - name: Checkout
+        if: ${{ steps.worker-secrets.outputs.ready == 'true' }}
         uses: actions/checkout@v4
 
       - name: Deploy worker with Wrangler
+        if: ${{ steps.worker-secrets.outputs.ready == 'true' }}
         uses: cloudflare/wrangler-action@v3
         with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          apiToken: ${{ env.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ env.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: worker-api
           command: deploy
 
   deploy-pages:
     name: Deploy Frontend Pages
     runs-on: ubuntu-latest
-    if: ${{ secrets.CLOUDFLARE_API_TOKEN != '' && secrets.CLOUDFLARE_ACCOUNT_ID != '' && secrets.CLOUDFLARE_PAGES_PROJECT != '' }}
     steps:
+      - name: Check pages deploy secrets
+        id: pages-secrets
+        run: |
+          if [ -n "$CLOUDFLARE_API_TOKEN" ] && [ -n "$CLOUDFLARE_ACCOUNT_ID" ] && [ -n "$CLOUDFLARE_PAGES_PROJECT" ] && [ -n "$CLOUDFLARE_WORKER_API_URL" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "Skipping pages deploy because required secrets are missing."
+          fi
+
       - name: Checkout
+        if: ${{ steps.pages-secrets.outputs.ready == 'true' }}
         uses: actions/checkout@v4
 
       - name: Setup Node
+        if: ${{ steps.pages-secrets.outputs.ready == 'true' }}
         uses: actions/setup-node@v4
         with:
           node-version: "20"
 
       - name: Install dependencies
+        if: ${{ steps.pages-secrets.outputs.ready == 'true' }}
         working-directory: frontend
         run: npm install --no-audit --no-fund
 
       - name: Build frontend
+        if: ${{ steps.pages-secrets.outputs.ready == 'true' }}
         working-directory: frontend
         run: npm run build
         env:
-          VITE_API_URL: ${{ secrets.CLOUDFLARE_WORKER_API_URL }}
+          VITE_API_URL: ${{ env.CLOUDFLARE_WORKER_API_URL }}
 
       - name: Deploy Pages
+        if: ${{ steps.pages-secrets.outputs.ready == 'true' }}
         uses: cloudflare/pages-action@v1
         with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: ${{ secrets.CLOUDFLARE_PAGES_PROJECT }}
+          apiToken: ${{ env.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ env.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: ${{ env.CLOUDFLARE_PAGES_PROJECT }}
           directory: frontend/dist
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
 
   missing-secrets-info:
     name: Missing Secrets Info
     runs-on: ubuntu-latest
-    if: ${{ secrets.CLOUDFLARE_API_TOKEN == '' || secrets.CLOUDFLARE_ACCOUNT_ID == '' || secrets.CLOUDFLARE_PAGES_PROJECT == '' || secrets.CLOUDFLARE_WORKER_API_URL == '' }}
     steps:
       - name: Explain required secrets
         run: |
-          echo "Set these GitHub repository secrets to enable auto-deploy:"
-          echo "CLOUDFLARE_API_TOKEN"
-          echo "CLOUDFLARE_ACCOUNT_ID"
-          echo "CLOUDFLARE_PAGES_PROJECT"
-          echo "CLOUDFLARE_WORKER_API_URL"
+          missing_any=0
+          if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
+            echo "Missing: CLOUDFLARE_API_TOKEN"
+            missing_any=1
+          fi
+          if [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "Missing: CLOUDFLARE_ACCOUNT_ID"
+            missing_any=1
+          fi
+          if [ -z "$CLOUDFLARE_PAGES_PROJECT" ]; then
+            echo "Missing: CLOUDFLARE_PAGES_PROJECT"
+            missing_any=1
+          fi
+          if [ -z "$CLOUDFLARE_WORKER_API_URL" ]; then
+            echo "Missing: CLOUDFLARE_WORKER_API_URL"
+            missing_any=1
+          fi
+          if [ "$missing_any" -eq 0 ]; then
+            echo "All Cloudflare deployment secrets are configured."
+          else
+            echo "Set the missing repository secrets listed above to enable full auto-deploy."
+          fi
