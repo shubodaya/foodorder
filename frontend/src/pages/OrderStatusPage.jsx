@@ -4,9 +4,9 @@ import { Navigate, useParams, useSearchParams } from "react-router-dom";
 import StatusBadge from "../components/StatusBadge";
 import { DEFAULT_CAFE_SLUG, getCafeConfig, isValidCafeSlug, normalizeCafeSlug } from "../constants/cafes";
 import { getOrder } from "../services/orderService";
-import { getSocket } from "../services/socket";
 
 const STATUS_STEPS = ["Pending", "Preparing", "Ready", "Completed"];
+const ORDER_STATUS_REFRESH_MS = 3000;
 
 function formatCurrency(value) {
   return `$${Number(value).toFixed(2)}`;
@@ -79,19 +79,12 @@ export default function OrderStatusPage() {
       return undefined;
     }
 
-    const socket = getSocket();
-    socket.emit("order:watch", Number(orderId));
-
-    const handleStatus = (payload) => {
-      if (String(payload.id) === String(orderId)) {
-        setOrder(payload);
-      }
-    };
-
-    socket.on("order:status", handleStatus);
+    const interval = setInterval(() => {
+      loadOrder(orderId);
+    }, ORDER_STATUS_REFRESH_MS);
 
     return () => {
-      socket.off("order:status", handleStatus);
+      clearInterval(interval);
     };
   }, [orderId, validCafe, activeCafeSlug]);
 

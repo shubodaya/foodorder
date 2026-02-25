@@ -13,7 +13,7 @@ import {
   updateMenuItem
 } from "../services/menuService";
 import { CAFE_CONFIGS } from "../constants/cafes";
-import { getAssetBaseUrl } from "../services/runtimeConfig";
+import { getAssetBaseUrl, resolveAssetUrl } from "../services/runtimeConfig";
 
 const IMAGE_BASE_URL = getAssetBaseUrl();
 
@@ -640,7 +640,7 @@ export default function AdminMenuPage() {
           {previewItems.map((item) => (
             <article key={item.id} className="premium-surface rounded-3xl p-4 shadow-panel">
               <img
-                src={item.image ? `${IMAGE_BASE_URL}${item.image}` : "https://placehold.co/400x200/1f2933/fefae0?text=Menu+Item"}
+                src={item.image ? resolveAssetUrl(item.image, IMAGE_BASE_URL) : "https://placehold.co/400x200/1f2933/fefae0?text=Menu+Item"}
                 alt={item.name}
                 className="mb-3 h-36 w-full rounded-2xl object-cover"
               />

@@ -1,0 +1,19 @@
+{
+  "name": "foodorder-worker-api",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.57.4",
+    "bcryptjs": "^2.4.3",
+    "hono": "^4.6.10",
+    "jose": "^5.9.3"
+  },
+  "devDependencies": {
+    "wrangler": "^4.68.1"
+  }
+}

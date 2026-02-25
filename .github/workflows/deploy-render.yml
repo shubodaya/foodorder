@@ -1,4 +1,4 @@
-name: Deploy Online (Render)
+name: Deploy Online (Cloudflare)
 
 on:
   push:
@@ -6,29 +6,63 @@ on:
   workflow_dispatch:
 
 jobs:
-  deploy-backend:
-    name: Deploy Backend
+  deploy-worker:
+    name: Deploy Worker API
     runs-on: ubuntu-latest
-    if: ${{ secrets.RENDER_BACKEND_DEPLOY_HOOK != '' }}
+    if: ${{ secrets.CLOUDFLARE_API_TOKEN != '' && secrets.CLOUDFLARE_ACCOUNT_ID != '' }}
     steps:
-      - name: Trigger backend deploy hook
-        run: curl --fail --show-error --silent -X POST "${{ secrets.RENDER_BACKEND_DEPLOY_HOOK }}"
+      - name: Checkout
+        uses: actions/checkout@v4
 
-  deploy-frontend:
-    name: Deploy Frontend
+      - name: Deploy worker with Wrangler
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: worker-api
+          command: deploy
+
+  deploy-pages:
+    name: Deploy Frontend Pages
     runs-on: ubuntu-latest
-    if: ${{ secrets.RENDER_FRONTEND_DEPLOY_HOOK != '' }}
+    if: ${{ secrets.CLOUDFLARE_API_TOKEN != '' && secrets.CLOUDFLARE_ACCOUNT_ID != '' && secrets.CLOUDFLARE_PAGES_PROJECT != '' }}
     steps:
-      - name: Trigger frontend deploy hook
-        run: curl --fail --show-error --silent -X POST "${{ secrets.RENDER_FRONTEND_DEPLOY_HOOK }}"
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm install --no-audit --no-fund
+
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build
+        env:
+          VITE_API_URL: ${{ secrets.CLOUDFLARE_WORKER_API_URL }}
+
+      - name: Deploy Pages
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: ${{ secrets.CLOUDFLARE_PAGES_PROJECT }}
+          directory: frontend/dist
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
 
   missing-secrets-info:
     name: Missing Secrets Info
     runs-on: ubuntu-latest
-    if: ${{ secrets.RENDER_BACKEND_DEPLOY_HOOK == '' || secrets.RENDER_FRONTEND_DEPLOY_HOOK == '' }}
+    if: ${{ secrets.CLOUDFLARE_API_TOKEN == '' || secrets.CLOUDFLARE_ACCOUNT_ID == '' || secrets.CLOUDFLARE_PAGES_PROJECT == '' || secrets.CLOUDFLARE_WORKER_API_URL == '' }}
     steps:
       - name: Explain required secrets
         run: |
           echo "Set these GitHub repository secrets to enable auto-deploy:"
-          echo "RENDER_BACKEND_DEPLOY_HOOK"
-          echo "RENDER_FRONTEND_DEPLOY_HOOK"
+          echo "CLOUDFLARE_API_TOKEN"
+          echo "CLOUDFLARE_ACCOUNT_ID"
+          echo "CLOUDFLARE_PAGES_PROJECT"
+          echo "CLOUDFLARE_WORKER_API_URL"

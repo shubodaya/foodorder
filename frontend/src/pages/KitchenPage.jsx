@@ -1,8 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import OrderCard from "../components/OrderCard";
 import { getAllOrders, setOrderStatus } from "../services/orderService";
-import { getSocket } from "../services/socket";
 
 function playNotification() {
   const audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -38,20 +37,14 @@ function sortOrders(orders) {
   });
 }
 
-function upsertOrder(orders, payload) {
-  const index = orders.findIndex((order) => order.id === payload.id);
-  if (index === -1) {
-    return [payload, ...orders];
-  }
-
-  return orders.map((order) => (order.id === payload.id ? payload : order));
-}
+const ORDERS_REFRESH_MS = 3000;
 
 export default function KitchenPage() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [now, setNow] = useState(Date.now());
+  const seenOrderIdsRef = useRef(new Set());
 
   useEffect(() => {
     const interval = setInterval(() => setNow(Date.now()), 30000);
@@ -61,47 +54,49 @@ export default function KitchenPage() {
   useEffect(() => {
     let mounted = true;
 
-    getAllOrders()
-      .then((data) => {
-        if (mounted) {
-          setOrders(data);
+    const loadOrders = async (showLoading) => {
+      if (showLoading) {
+        setLoading(true);
+        setError("");
+      }
+
+      try {
+        const data = await getAllOrders();
+        if (!mounted) {
+          return;
         }
-      })
-      .catch((_error) => {
-        if (mounted) {
+
+        const incomingIds = new Set(
+          (data || [])
+            .filter((order) => order.status !== "Completed")
+            .map((order) => order.id)
+        );
+        const seenIds = seenOrderIdsRef.current;
+        const hasNewOrder = seenIds.size > 0
+          && [...incomingIds].some((orderId) => !seenIds.has(orderId));
+        if (hasNewOrder) {
+          playNotification();
+        }
+
+        seenOrderIdsRef.current = incomingIds;
+        setOrders(data || []);
+      } catch (_error) {
+        if (mounted && showLoading) {
           setError("Unable to load orders.");
         }
-      })
-      .finally(() => {
-        if (mounted) {
+      } finally {
+        if (mounted && showLoading) {
           setLoading(false);
         }
-      });
+      }
+    };
+
+    loadOrders(true);
+    const interval = setInterval(() => loadOrders(false), ORDERS_REFRESH_MS);
 
     return () => {
       mounted = false;
-    };
-  }, []);
-
-  useEffect(() => {
-    const socket = getSocket();
-    socket.emit("kitchen:join");
-
-    const handleNewOrder = (payload) => {
-      setOrders((prev) => upsertOrder(prev, payload));
-      playNotification();
-    };
-
-    const handleOrderStatus = (payload) => {
-      setOrders((prev) => upsertOrder(prev, payload));
-    };
-
-    socket.on("order:new", handleNewOrder);
-    socket.on("order:status", handleOrderStatus);
-
-    return () => {
-      socket.off("order:new", handleNewOrder);
-      socket.off("order:status", handleOrderStatus);
+      clearInterval(interval);
     };
   }, []);
 

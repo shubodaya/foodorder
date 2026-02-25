@@ -5,18 +5,9 @@ import { DEFAULT_CAFE_SLUG, getCafeConfig, isValidCafeSlug, normalizeCafeSlug } 
 import { login as loginStaff } from "../services/authService";
 import { getPublicOrders, setOrderStatus } from "../services/orderService";
 import { getPublicSettings } from "../services/settingsService";
-import { getSocket } from "../services/socket";
 
 const BOARD_AUTH_STORAGE_KEY = "rays_board_staff_auth";
-
-function upsertOrder(orders, payload) {
-  const index = orders.findIndex((order) => order.id === payload.id);
-  if (index === -1) {
-    return [payload, ...orders];
-  }
-
-  return orders.map((order) => (order.id === payload.id ? payload : order));
-}
+const ORDER_BOARD_REFRESH_MS = 3000;
 
 function sortByCreatedAt(a, b) {
   return new Date(a.createdAt) - new Date(b.createdAt);
@@ -122,29 +113,37 @@ export default function OrderBoardPage() {
     }
 
     let mounted = true;
-    setLoading(true);
-    setError("");
-    setOrders([]);
 
-    getPublicOrders(activeCafeSlug)
-      .then((data) => {
-        if (mounted) {
-          setOrders(data || []);
+    const loadBoardOrders = async (showLoading) => {
+      if (showLoading) {
+        setLoading(true);
+        setError("");
+        setOrders([]);
+      }
+
+      try {
+        const data = await getPublicOrders(activeCafeSlug);
+        if (!mounted) {
+          return;
         }
-      })
-      .catch(() => {
-        if (mounted) {
+        setOrders(data || []);
+      } catch (_error) {
+        if (mounted && showLoading) {
           setError("Unable to load order board.");
         }
-      })
-      .finally(() => {
-        if (mounted) {
+      } finally {
+        if (mounted && showLoading) {
           setLoading(false);
         }
-      });
+      }
+    };
+
+    loadBoardOrders(true);
+    const interval = setInterval(() => loadBoardOrders(false), ORDER_BOARD_REFRESH_MS);
 
     return () => {
       mounted = false;
+      clearInterval(interval);
     };
   }, [activeCafeSlug, validCafe]);
 
@@ -200,35 +199,6 @@ export default function OrderBoardPage() {
     document.addEventListener("pointerdown", handlePointerDown);
     return () => document.removeEventListener("pointerdown", handlePointerDown);
   }, [settingsOpen]);
-
-  useEffect(() => {
-    if (!validCafe) {
-      return undefined;
-    }
-
-    const socket = getSocket();
-
-    const handleIncoming = (payload) => {
-      if (payload.cafeSlug !== activeCafeSlug) {
-        return;
-      }
-
-      if (payload.status === "Completed") {
-        setOrders((prev) => prev.filter((order) => order.id !== payload.id));
-        return;
-      }
-
-      setOrders((prev) => upsertOrder(prev, payload));
-    };
-
-    socket.on("public:order:new", handleIncoming);
-    socket.on("public:order:status", handleIncoming);
-
-    return () => {
-      socket.off("public:order:new", handleIncoming);
-      socket.off("public:order:status", handleIncoming);
-    };
-  }, [activeCafeSlug, validCafe]);
 
   useEffect(() => {
     setSelectedOrderIds([]);

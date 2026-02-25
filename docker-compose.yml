@@ -52,7 +52,6 @@ services:
     restart: unless-stopped
     environment:
       VITE_API_URL: http://localhost:5000/api
-      VITE_SOCKET_URL: http://localhost:5000
     depends_on:
       - backend
     ports:

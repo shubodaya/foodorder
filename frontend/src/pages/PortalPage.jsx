@@ -1,12 +1,11 @@
 import { Link } from "react-router-dom";
 
 import { CAFE_CONFIGS } from "../constants/cafes";
-import { getAssetBaseUrl } from "../services/runtimeConfig";
+import { resolveAssetUrl } from "../services/runtimeConfig";
 
 export default function PortalPage() {
-  const assetBaseUrl = getAssetBaseUrl();
-  const landingBackgroundUrl = `${assetBaseUrl}/asset/background.avif`;
-  const cafeTileBackgroundUrl = `${assetBaseUrl}/asset/woodboard.jpg`;
+  const landingBackgroundUrl = resolveAssetUrl("/asset/background.avif");
+  const cafeTileBackgroundUrl = resolveAssetUrl("/asset/woodboard.jpg");
 
   return (
     <section className="relative min-h-[calc(100vh-7rem)] overflow-hidden rounded-[2rem] p-4 md:p-6">

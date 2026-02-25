@@ -14,7 +14,6 @@ import MenuPage from "./pages/MenuPage";
 import OrderBoardPage from "./pages/OrderBoardPage";
 import PortalPage from "./pages/PortalPage";
 import { getPublicSettings } from "./services/settingsService";
-import { getSocket } from "./services/socket";
 
 const STAFF_ROUTE_PREFIXES = [
   "/staff",
@@ -24,6 +23,7 @@ const STAFF_ROUTE_PREFIXES = [
   "/admin",
   "/login"
 ];
+const SETTINGS_REFRESH_MS = 15000;
 
 function isStaffRoute(pathname) {
   if (pathname === "/staff-login") {
@@ -44,32 +44,24 @@ export default function App() {
   useEffect(() => {
     let active = true;
 
-    getPublicSettings()
-      .then((settings) => {
+    const loadSettings = async () => {
+      try {
+        const settings = await getPublicSettings();
         if (!active) {
           return;
         }
         setCustomerPortalTheme(normalizeCustomerTheme(settings?.customerPortalTheme));
-      })
-      .catch(() => {
+      } catch (_error) {
         // Keep default dark theme when settings are unavailable.
-      });
+      }
+    };
+
+    loadSettings();
+    const interval = setInterval(loadSettings, SETTINGS_REFRESH_MS);
 
     return () => {
       active = false;
-    };
-  }, []);
-
-  useEffect(() => {
-    const socket = getSocket();
-    const handleThemeUpdate = (payload) => {
-      setCustomerPortalTheme(normalizeCustomerTheme(payload?.theme));
-    };
-
-    socket.on("settings:customerTheme", handleThemeUpdate);
-
-    return () => {
-      socket.off("settings:customerTheme", handleThemeUpdate);
+      clearInterval(interval);
     };
   }, []);
 

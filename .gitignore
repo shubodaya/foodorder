@@ -3,6 +3,8 @@
 **/dist
 .env
 **/.env
+worker-api/.dev.vars
+worker-api/.wrangler
 backend/uploads/*
 !backend/uploads/.gitkeep
 receipts/*.txt

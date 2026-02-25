@@ -4,7 +4,7 @@ import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { DEFAULT_CAFE_SLUG, getCafeConfig, isValidCafeSlug, normalizeCafeSlug } from "../constants/cafes";
 import { useCart } from "../context/CartContext";
 import { placeOrder } from "../services/orderService";
-import { getAssetBaseUrl } from "../services/runtimeConfig";
+import { getAssetBaseUrl, resolveAssetUrl } from "../services/runtimeConfig";
 
 const IMAGE_BASE_URL = getAssetBaseUrl();
 const ORDER_POPUP_SECONDS = 15;
@@ -173,7 +173,7 @@ export default function CartPage() {
           {items.map((item) => (
             <article key={item.cartItemId} className="premium-surface flex flex-wrap items-center gap-4 rounded-3xl p-4 shadow-soft">
               <img
-                src={item.image ? `${IMAGE_BASE_URL}${item.image}` : "https://placehold.co/120x120/1f2933/fefae0?text=Item"}
+                src={item.image ? resolveAssetUrl(item.image, IMAGE_BASE_URL) : "https://placehold.co/120x120/1f2933/fefae0?text=Item"}
                 alt={item.name}
                 className="h-20 w-20 rounded-2xl object-cover"
               />

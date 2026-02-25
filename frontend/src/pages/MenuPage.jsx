@@ -5,7 +5,7 @@ import MenuItemCard from "../components/MenuItemCard";
 import { DEFAULT_CAFE_SLUG, getCafeConfig, isValidCafeSlug, normalizeCafeSlug } from "../constants/cafes";
 import { useCart } from "../context/CartContext";
 import { fetchMenu } from "../services/menuService";
-import { getAssetBaseUrl } from "../services/runtimeConfig";
+import { getAssetBaseUrl, resolveAssetUrl } from "../services/runtimeConfig";
 
 const IMAGE_BASE_URL = getAssetBaseUrl();
 
@@ -60,7 +60,7 @@ export default function MenuPage() {
     getCafeSubtotal
   } = useCart();
   const navigate = useNavigate();
-  const menuTileBackgroundUrl = `${IMAGE_BASE_URL}/asset/woodboard.jpg`;
+  const menuTileBackgroundUrl = resolveAssetUrl("/asset/woodboard.jpg", IMAGE_BASE_URL);
 
   const [menu, setMenu] = useState({ categories: [], items: [], extras: [] });
   const [selectedCategory, setSelectedCategory] = useState("all");

@@ -3,7 +3,6 @@ import { useEffect, useMemo, useState } from "react";
 import OrderCard from "../components/OrderCard";
 import { CAFE_CONFIGS } from "../constants/cafes";
 import { getAllOrders, setOrderStatus } from "../services/orderService";
-import { getSocket } from "../services/socket";
 
 function sortOrders(orders) {
   const weight = {
@@ -23,14 +22,7 @@ function sortOrders(orders) {
   });
 }
 
-function upsertOrder(orders, payload) {
-  const index = orders.findIndex((order) => order.id === payload.id);
-  if (index === -1) {
-    return [payload, ...orders];
-  }
-
-  return orders.map((order) => (order.id === payload.id ? payload : order));
-}
+const ORDERS_REFRESH_MS = 3000;
 
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState([]);
@@ -46,58 +38,37 @@ export default function AdminOrdersPage() {
 
   useEffect(() => {
     let mounted = true;
-    setLoading(true);
-    setError("");
-    setOrders([]);
 
-    getAllOrders(selectedCafeSlug)
-      .then((data) => {
-        if (mounted) {
-          setOrders(data);
+    const loadOrders = async (showLoading) => {
+      if (showLoading) {
+        setLoading(true);
+        setError("");
+        setOrders([]);
+      }
+
+      try {
+        const data = await getAllOrders(selectedCafeSlug);
+        if (!mounted) {
+          return;
         }
-      })
-      .catch((_error) => {
-        if (mounted) {
+        setOrders(data);
+      } catch (_error) {
+        if (mounted && showLoading) {
           setError("Unable to load orders.");
         }
-      })
-      .finally(() => {
-        if (mounted) {
+      } finally {
+        if (mounted && showLoading) {
           setLoading(false);
         }
-      });
+      }
+    };
+
+    loadOrders(true);
+    const interval = setInterval(() => loadOrders(false), ORDERS_REFRESH_MS);
 
     return () => {
       mounted = false;
-    };
-  }, [selectedCafeSlug]);
-
-  useEffect(() => {
-    const socket = getSocket();
-    socket.emit("admin:join");
-
-    const handleNew = (payload) => {
-      if (payload.cafeSlug !== selectedCafeSlug) {
-        return;
-      }
-
-      setOrders((prev) => upsertOrder(prev, payload));
-    };
-
-    const handleStatus = (payload) => {
-      if (payload.cafeSlug !== selectedCafeSlug) {
-        return;
-      }
-
-      setOrders((prev) => upsertOrder(prev, payload));
-    };
-
-    socket.on("order:new", handleNew);
-    socket.on("order:status", handleStatus);
-
-    return () => {
-      socket.off("order:new", handleNew);
-      socket.off("order:status", handleStatus);
+      clearInterval(interval);
     };
   }, [selectedCafeSlug]);
 

@@ -3,13 +3,13 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 import { useAuth } from "../context/AuthContext";
 import { login } from "../services/authService";
-import { getAssetBaseUrl } from "../services/runtimeConfig";
+import { resolveAssetUrl } from "../services/runtimeConfig";
 
 export default function LoginPage() {
   const { login: setAuth } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const staffBackgroundUrl = `${getAssetBaseUrl()}/asset/staffbackground.png`;
+  const staffBackgroundUrl = resolveAssetUrl("/asset/staffbackground.png");
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

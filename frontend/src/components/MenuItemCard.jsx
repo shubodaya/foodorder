@@ -1,3 +1,5 @@
+import { resolveAssetUrl } from "../services/runtimeConfig";
+
 function formatPrice(value) {
   return `$${Number(value).toFixed(2)}`;
 }
@@ -12,7 +14,7 @@ export default function MenuItemCard({
 }) {
   const placeholderText = encodeURIComponent(placeholderLabel).replace(/%20/g, "+");
   const imageUrl = item.image
-    ? `${imageBaseUrl}${item.image}`
+    ? resolveAssetUrl(item.image, imageBaseUrl)
     : `https://placehold.co/600x400/1f2933/fefae0?text=${placeholderText}`;
 
   return (

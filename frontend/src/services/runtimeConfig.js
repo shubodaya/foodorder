@@ -19,60 +19,72 @@ function isLoopbackHost(hostname) {
   return normalized === "localhost" || normalized === "127.0.0.1" || normalized === "::1";
 }
 
-function resolveServiceUrl(configuredUrl, defaultPort, defaultPath = "") {
-  const browserHost = getBrowserHost();
-  const browserProtocol = getBrowserProtocol();
-
-  if (configuredUrl) {
-    try {
-      const parsed = new URL(configuredUrl);
-
-      if (isLoopbackHost(parsed.hostname) && !isLoopbackHost(browserHost)) {
-        parsed.hostname = browserHost;
-      }
-
-      return parsed.toString().replace(/\/$/, "");
-    } catch (_error) {
-      // Fall through to safe default.
-    }
-  }
-
-  const safePath = defaultPath.startsWith("/") ? defaultPath : `/${defaultPath}`;
-  return `${browserProtocol}//${browserHost}:${defaultPort}${safePath}`;
+function normalizeBaseUrl(value) {
+  return String(value || "").replace(/\/+$/, "");
 }
 
-function resolveSocketFromApiUrl(apiUrl) {
-  if (!apiUrl) {
-    return null;
+function resolveConfiguredUrl(configuredUrl) {
+  if (!configuredUrl) {
+    return "";
   }
 
+  const browserHost = getBrowserHost();
+
   try {
-    const parsed = new URL(apiUrl);
-    parsed.pathname = parsed.pathname.replace(/\/api\/?$/, "");
-    return parsed.toString().replace(/\/$/, "");
+    const parsed = new URL(configuredUrl);
+
+    if (isLoopbackHost(parsed.hostname) && !isLoopbackHost(browserHost)) {
+      parsed.hostname = browserHost;
+    }
+
+    return normalizeBaseUrl(parsed.toString());
   } catch (_error) {
-    return null;
+    return normalizeBaseUrl(configuredUrl);
   }
 }
 
 export function getApiBaseUrl() {
-  return resolveServiceUrl(import.meta.env.VITE_API_URL, 5000, "/api");
-}
-
-export function getSocketBaseUrl() {
-  const configuredSocketUrl = import.meta.env.VITE_SOCKET_URL;
-  if (configuredSocketUrl) {
-    return resolveServiceUrl(configuredSocketUrl, 5000, "");
+  const configured = resolveConfiguredUrl(import.meta.env.VITE_API_URL);
+  if (configured) {
+    return configured;
   }
 
-  const derivedFromApi = resolveSocketFromApiUrl(import.meta.env.VITE_API_URL);
-  if (derivedFromApi) {
-    return derivedFromApi;
+  const browserHost = getBrowserHost();
+  const browserProtocol = getBrowserProtocol();
+  if (isLoopbackHost(browserHost)) {
+    return `${browserProtocol}//${browserHost}:5000/api`;
   }
 
-  return resolveServiceUrl(null, 5000, "");
+  return `${browserProtocol}//${browserHost}/api`;
 }
 
 export function getAssetBaseUrl() {
-  return getApiBaseUrl().replace(/\/api\/?$/, "");
+  const configured = resolveConfiguredUrl(import.meta.env.VITE_ASSET_BASE_URL);
+  if (configured) {
+    return configured;
+  }
+
+  if (typeof window === "undefined") {
+    return "";
+  }
+
+  return normalizeBaseUrl(window.location.origin);
+}
+
+export function resolveAssetUrl(path, baseOverride = "") {
+  const value = String(path || "").trim();
+  if (!value) {
+    return "";
+  }
+
+  if (/^(https?:|data:|blob:)/i.test(value)) {
+    return value;
+  }
+
+  const base = normalizeBaseUrl(baseOverride || getAssetBaseUrl());
+  if (!base) {
+    return value.startsWith("/") ? value : `/${value}`;
+  }
+
+  return value.startsWith("/") ? `${base}${value}` : `${base}/${value}`;
 }

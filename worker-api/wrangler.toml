@@ -1,0 +1,9 @@
+name = "foodorder-api"
+main = "src/index.js"
+compatibility_date = "2026-02-25"
+
+[vars]
+CLIENT_URL = "https://foodorder.pages.dev,http://localhost:5173"
+RECEIPTS_ENABLED = "true"
+SUPABASE_MENU_BUCKET = "menu-images"
+BREVO_SENDER_NAME = "Woodlands"

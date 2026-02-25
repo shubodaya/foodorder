@@ -1,15 +1,16 @@
-﻿# Food Ordering Application
+# Food Ordering Application
 
 This README explains only how to use the live website.
+Use your Cloudflare Pages domain in place of `<your-pages-domain>`.
 
 ## Main Portal
 
-- `https://foodorder-front.onrender.com/`  
+- `https://<your-pages-domain>/`
 Choose your cafe and start ordering.
 
 ## Staff Login
 
-- `https://foodorder-front.onrender.com/staff-login`  
+- `https://<your-pages-domain>/staff-login`
 Staff sign in page for kitchen/admin access.
 
 Default staff users:
@@ -18,45 +19,45 @@ Default staff users:
 
 ## Rays Diner Links
 
-- `https://foodorder-front.onrender.com/raysdiner/menu`  
+- `https://<your-pages-domain>/raysdiner/menu`
 Customer menu for Rays Diner (browse categories and add food).
-- `https://foodorder-front.onrender.com/raysdiner/cart`  
+- `https://<your-pages-domain>/raysdiner/cart`
 Customer cart and checkout for Rays Diner.
-- `https://foodorder-front.onrender.com/raysdiner/order-board`  
+- `https://<your-pages-domain>/raysdiner/order-board`
 Live order board screen for Rays Diner (preparing and ready numbers).
 
 ## Loves Grove Links
 
-- `https://foodorder-front.onrender.com/lovesgrove/menu`  
+- `https://<your-pages-domain>/lovesgrove/menu`
 Customer menu for Loves Grove.
-- `https://foodorder-front.onrender.com/lovesgrove/cart`  
+- `https://<your-pages-domain>/lovesgrove/cart`
 Customer cart and checkout for Loves Grove.
-- `https://foodorder-front.onrender.com/lovesgrove/order-board`  
+- `https://<your-pages-domain>/lovesgrove/order-board`
 Live order board screen for Loves Grove.
 
 ## Cosmic Cafe Links
 
-- `https://foodorder-front.onrender.com/cosmiccafe/menu`  
+- `https://<your-pages-domain>/cosmiccafe/menu`
 Customer menu for Cosmic Cafe.
-- `https://foodorder-front.onrender.com/cosmiccafe/cart`  
+- `https://<your-pages-domain>/cosmiccafe/cart`
 Customer cart and checkout for Cosmic Cafe.
-- `https://foodorder-front.onrender.com/cosmiccafe/order-board`  
+- `https://<your-pages-domain>/cosmiccafe/order-board`
 Live order board screen for Cosmic Cafe.
 
 ## Staff Pages After Login
 
-- `https://foodorder-front.onrender.com/new-orders`  
+- `https://<your-pages-domain>/new-orders`
 Realtime incoming customer orders for kitchen/staff.
-- `https://foodorder-front.onrender.com/staff-dashboard`  
+- `https://<your-pages-domain>/staff-dashboard`
 Staff dashboard (admin controls).
-- `https://foodorder-front.onrender.com/staff-menu-management`  
+- `https://<your-pages-domain>/staff-menu-management`
 Add/edit/delete categories, menu items, extras, and images.
-- `https://foodorder-front.onrender.com/end-of-day`  
+- `https://<your-pages-domain>/end-of-day`
 Generate end-of-day receipt and sales summary.
 
 ## Customer Usage Flow
 
-1. Open `https://foodorder-front.onrender.com/`.
+1. Open `https://<your-pages-domain>/`.
 2. Choose cafe: Rays Diner, Loves Grove, or Cosmic Cafe.
 3. Add items from menu and open cart.
 4. Enter name and place order (email is optional for receipt).
@@ -65,8 +66,8 @@ Generate end-of-day receipt and sales summary.
 
 ## Staff Usage Flow
 
-1. Open `https://foodorder-front.onrender.com/staff-login` and sign in.
-2. Open `https://foodorder-front.onrender.com/new-orders`.
+1. Open `https://<your-pages-domain>/staff-login` and sign in.
+2. Open `https://<your-pages-domain>/new-orders`.
 3. Select cafe in staff view and process orders.
 4. Move orders through statuses and mark completed.
-5. Use `https://foodorder-front.onrender.com/end-of-day` for daily totals.
+5. Use `https://<your-pages-domain>/end-of-day` for daily totals.
